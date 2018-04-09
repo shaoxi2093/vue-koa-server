@@ -1,3 +1,5 @@
+const NODE_ENV = process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+const IS_DEV_ENV = NODE_ENV == 'development'
 const Koa = require('koa')
 const app = new Koa()
 const views = require('koa-views')
@@ -33,8 +35,37 @@ app.use(async (ctx, next) => {
 })
 
 // routes
+
+app.use(ctx => {
+  console.log(ctx);
+})
+
 app.use(index.routes(), index.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
+
+console.log(NODE_ENV);
+//构建前端应用
+if(IS_DEV_ENV){
+  let webpack = require('webpack'),
+      webpackDevMiddleware = require('webpack-dev-middleware'),
+      webpackHotMiddleware = require('webpack-hot-middleware'),
+      webpackDevConfig = require('./webpack.config.dev');
+
+  let compiler = webpack(webpackDevConfig);
+  let devMiddleware = webpackDevMiddleware(compiler,{
+    publicPath:webpackDevConfig.output.publicPath,
+      noInfo:true,
+      stats: {
+        colors:true
+      }
+  });
+  let _readFileSync_ = devMiddleware.fileSystem.readFileSync.bind(devMiddleware.fileSystem);
+
+  app.use( ctx => {
+
+  })
+
+}
 
 // error-handling
 app.on('error', (err, ctx) => {
