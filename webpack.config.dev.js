@@ -91,8 +91,8 @@ const webpackBaseConfig = {
             }
         }),
         new HtmlWebpackPlugin({
-            filename:'',
-            template:path.resolve(__dirname,'./views/'),
+            filename:'./app.html',
+            template:path.resolve(__dirname,'./views/app.html'),
             inject:true,
             chunks:['app','common']
         })

@@ -35,6 +35,7 @@ app.use(async (ctx, next) => {
 })
 
 // routes
+//后端路由
 
 app.use(ctx => {
   console.log(ctx);
@@ -43,8 +44,18 @@ app.use(ctx => {
 app.use(index.routes(), index.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
 
+//vue-app
+app.use( ctx => {
+  if(ctx.request.accepts('html')){
+    ctx.response.type = 'html';
+    ctx.request.url = '/app.html'
+  }
+})
+
 console.log(NODE_ENV);
-//构建前端应用
+
+
+//development
 if(IS_DEV_ENV){
   let webpack = require('webpack'),
       webpackDevMiddleware = require('webpack-dev-middleware'),
@@ -62,10 +73,20 @@ if(IS_DEV_ENV){
   let _readFileSync_ = devMiddleware.fileSystem.readFileSync.bind(devMiddleware.fileSystem);
 
   app.use( ctx => {
-
+    let url = ctx.request.url;
+    if(url.indexOf('.html')>-1){
+        devMiddleware.fileSystem.readFileSync = function (_path,encoding) {
+            let content = _readFileSync_(_path,encoding);
+            //template engine can do something here
+            ctx.response.body = content;
+        }
+    }
   })
-
 }
+
+//production
+
+
 
 // error-handling
 app.on('error', (err, ctx) => {
