@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 
 let cssLoadersUtil = require('./cssLoaders')
 let hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true'
@@ -26,14 +27,75 @@ const webpackBaseConfig = {
                     loader: "vue-loader",
                     options: {
                         loaders:cssLoadersUtil.cssLoaders({
-                            minimize:false,   //不压缩，不单独生成文件
+                            minimize:false,   //不压缩，debug标记源位置，不单独生成文件
                             sourceMap:true,
                             extract:false
                         })
                     }
                 }]
+            },
+            {
+                test:/\.html$/,
+                use: "html-loader"
+            },
+            {
+                test:/\.js|\.jsx$/,
+                loader: "babel-loader",
+                exclude:/node_modules/
+            },
+            {
+                test:/\.css$/,
+                loader: "style-loader!css-loader!postcss-loader"
+            },
+            {
+                test:/\.scss$/,
+                loader: "style-loader!css-loader!postcss-loader!sass-loader",
+                exclude:/node_modules/
+            },
+            {
+                test:/\.svg/,
+                loader: "svg-sprite-loader",
+                options: {
+                    symbolId:'icon-[name]'
+                }
+            },
+            {
+                test:/\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                loader: "url-loader?limit=8192",
+            },
+            {
+                test:/\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
+                loader: "file-loader"
             }
         ]
-    }
+    },
+    devtool: "#source-map",
+    plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.NoEmitOnErrorsPlugin(),
+        new webpack.HashedModuleIdsPlugin(),
+        new webpack.optimize.CommonsChunkPlugin({
+            name:'common',
+            minChunks(module){
+                return (
+                    module.resource && /\.js$/.test(module.resource) && module.resource.indexOf(
+                        path.resolve(__dirname,'./node_modules')
+                    ) === 0
+                )
+            }
+        }),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.DefinePlugin({
+            'process.env':{
+                NODE_ENV:'development'
+            }
+        }),
+        new HtmlWebpackPlugin({
+            filename:'',
+            template:path.resolve(__dirname,'./views/'),
+            inject:true,
+            chunks:['app','common']
+        })
+    ]
 }
 module.exports = webpackBaseConfig;
