@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 let cssLoadersUtil = require('./cssLoaders')
 let hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true'
@@ -74,7 +75,7 @@ const webpackBaseConfig = {
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.HashedModuleIdsPlugin(),
-        new webpack.optimize.CommonsChunkPlugin({
+        /*new webpack.optimize.CommonsChunkPlugin({
             name:'common',
             minChunks(module){
                 return (
@@ -83,7 +84,7 @@ const webpackBaseConfig = {
                     ) === 0
                 )
             }
-        }),
+        }),*/
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.DefinePlugin({
             'process.env':{
@@ -96,6 +97,19 @@ const webpackBaseConfig = {
             inject:true,
             chunks:['app','common']
         })
-    ]
+    ],
+    optimization:{
+        splitChunks:{
+            name:'common',
+            filename:'common.js',
+            minChunks:function(module,count){
+                return (
+                    module.resource && /\.js$/.test(module.resource) && module.resource.indexOf(
+                        path.resolve(__dirname,'./node_modules')
+                    ) === 0
+                )
+            }
+        }
+    }
 }
 module.exports = webpackBaseConfig;
