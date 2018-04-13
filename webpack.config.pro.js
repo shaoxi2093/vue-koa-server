@@ -1,12 +1,13 @@
 const path = require('path')
 const webpack = require('webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 let cssLoadersUtil = require('./cssLoaders')
 let hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true'
+
+//TODO 增加压缩、混淆
 const webpackBaseConfig = {
     entry: {
-        app: [hotMiddlewareScript, path.resolve(__dirname, './public/src/entry/app.js')]
+        app: [hotMiddlewareScript, path.resolve(__dirname, './publick/src/entry/app.js')]
     },
     output: {
         path: path.resolve(__dirname, './public/dist'),
@@ -75,7 +76,7 @@ const webpackBaseConfig = {
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.HashedModuleIdsPlugin(),
-        /*new webpack.optimize.CommonsChunkPlugin({
+        new webpack.optimize.CommonsChunkPlugin({
             name:'common',
             minChunks(module){
                 return (
@@ -84,32 +85,19 @@ const webpackBaseConfig = {
                     ) === 0
                 )
             }
-        }),*/
+        }),
         new webpack.optimize.OccurrenceOrderPlugin(),
-        /*new webpack.DefinePlugin({
+        new webpack.DefinePlugin({
             'process.env':{
                 NODE_ENV:'development'
             }
-        }),*/
+        }),
         new HtmlWebpackPlugin({
             filename:'./app.html',
             template:path.resolve(__dirname,'./views/app.html'),
             inject:true,
             chunks:['app','common']
         })
-    ],
-    optimization:{
-        splitChunks:/*{
-            name:'common',
-            filename:'common.js',
-            minChunks:function(module,count){
-                return (
-                    module.resource && /\.js$/.test(module.resource) && module.resource.indexOf(
-                        path.resolve(__dirname,'./node_modules')
-                    ) === 0
-                )
-            }
-        }*/false
-    }
+    ]
 }
 module.exports = webpackBaseConfig;

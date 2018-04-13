@@ -37,19 +37,21 @@ app.use(async (ctx, next) => {
 // routes
 //后端路由
 
-app.use(ctx => {
+app.use((ctx,next) => {
   console.log(ctx);
+  next();
 })
 
-app.use(index.routes(), index.allowedMethods())
-app.use(users.routes(), users.allowedMethods())
+// app.use(index.routes(), index.allowedMethods())
+// app.use(users.routes(), users.allowedMethods())
 
 //vue-app
-app.use( ctx => {
+app.use( (ctx,next) => {
   if(ctx.request.accepts('html')){
     ctx.response.type = 'html';
     ctx.request.url = '/app.html'
   }
+  next();
 })
 
 console.log(NODE_ENV);
@@ -78,9 +80,12 @@ if(IS_DEV_ENV){
         devMiddleware.fileSystem.readFileSync = function (_path,encoding) {
             let content = _readFileSync_(_path,encoding);
             //template engine can do something here
-            ctx.response.body = content;
+            return ctx.response.body = content;
         }
+    }else {
+      devMiddleware.fileSystem.readFileSync = _readFileSync_;
     }
+    devMiddleware(ctx)
   })
 }
 
