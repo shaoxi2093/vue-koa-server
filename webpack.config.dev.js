@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 let cssLoadersUtil = require('./cssLoaders')
 let hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true'
 const webpackBaseConfig = {
+    mode: 'development',
     entry: {
         app: [hotMiddlewareScript, path.resolve(__dirname, './public/src/entry/app.js')]
     },
@@ -99,17 +100,18 @@ const webpackBaseConfig = {
         })
     ],
     optimization:{
-        splitChunks:/*{
-            name:'common',
-            filename:'common.js',
-            minChunks:function(module,count){
-                return (
-                    module.resource && /\.js$/.test(module.resource) && module.resource.indexOf(
-                        path.resolve(__dirname,'./node_modules')
-                    ) === 0
-                )
+        runtimeChunk: {
+            name: "manifest"
+        },
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendor",
+                    chunks: "all"
+                }
             }
-        }*/false
+        }
     }
 }
 module.exports = webpackBaseConfig;
