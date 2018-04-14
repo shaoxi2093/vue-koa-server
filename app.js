@@ -11,6 +11,8 @@ const logger = require('koa-logger')
 const index = require('./routes/index')
 const users = require('./routes/users')
 
+const webpackMiddleware = require('koa-webpack-middleware')
+
 // error handler
 onerror(app)
 
@@ -60,33 +62,41 @@ console.log(NODE_ENV);
 //development
 if(IS_DEV_ENV){
   let webpack = require('webpack'),
-      webpackDevMiddleware = require('webpack-dev-middleware'),
-      webpackHotMiddleware = require('webpack-hot-middleware'),
-      webpackDevConfig = require('./webpack.config.dev');
+      webpackDevConfig = require('./webpack.config.dev'),
+      devMiddleware = webpackMiddleware.devMiddleware,
+      hotMiddleware = webpackMiddleware.hotMiddleware;
 
   let compiler = webpack(webpackDevConfig);
-  let devMiddleware = webpackDevMiddleware(compiler,{
-    publicPath:webpackDevConfig.output.publicPath,
-      noInfo:true,
-      stats: {
-        colors:true
-      }
-  });
-  let _readFileSync_ = devMiddleware.fileSystem.readFileSync.bind(devMiddleware.fileSystem);
-
-  app.use( ctx => {
-    let url = ctx.request.url;
-    if(url.indexOf('.html')>-1){
-        devMiddleware.fileSystem.readFileSync = function (_path,encoding) {
-            let content = _readFileSync_(_path,encoding);
-            //template engine can do something here
-            return ctx.response.body = content;
+  // let devMiddlewareApp = devMiddleware(compiler,{
+  //   publicPath:webpackDevConfig.output.publicPath,
+  //     noInfo:true,
+  //     stats: {
+  //       colors:true
+  //     }
+  // });
+  // let _readFileSync_ = devMiddleware.fileSystem.readFileSync.bind(devMiddleware.fileSystem);
+  //
+  // app.use( ctx => {
+  //   let url = ctx.request.url;
+  //   if(url.indexOf('.html')>-1){
+  //       devMiddleware.fileSystem.readFileSync = function (_path,encoding) {
+  //           let content = _readFileSync_(_path,encoding);
+  //           //template engine can do something here
+  //           return ctx.response.body = content;
+  //       }
+  //   }else {
+  //     devMiddleware.fileSystem.readFileSync = _readFileSync_;
+  //   }
+  //   devMiddleware(ctx)
+  // })
+    app.use(devMiddleware(compiler,{
+        publicPath:webpackDevConfig.output.publicPath,
+        noInfo:true,
+        stats: {
+            colors:true
         }
-    }else {
-      devMiddleware.fileSystem.readFileSync = _readFileSync_;
-    }
-    devMiddleware(ctx)
-  })
+    }));
+    app.use(hotMiddleware(compiler))
 }
 
 //production
