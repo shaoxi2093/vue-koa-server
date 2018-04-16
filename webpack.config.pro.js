@@ -1,13 +1,13 @@
 const path = require('path')
 const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 let cssLoadersUtil = require('./cssLoaders')
 let hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true'
-
-//TODO 增加压缩、混淆
 const webpackBaseConfig = {
+    mode: 'development',
     entry: {
-        app: [hotMiddlewareScript, path.resolve(__dirname, './publick/src/entry/app.js')]
+        app: [hotMiddlewareScript, path.resolve(__dirname, './public/src/entry/app.js')]
     },
     output: {
         path: path.resolve(__dirname, './public/dist'),
@@ -76,28 +76,41 @@ const webpackBaseConfig = {
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.HashedModuleIdsPlugin(),
-        new webpack.optimize.CommonsChunkPlugin({
-            name:'common',
-            minChunks(module){
-                return (
-                    module.resource && /\.js$/.test(module.resource) && module.resource.indexOf(
-                        path.resolve(__dirname,'./node_modules')
-                    ) === 0
-                )
-            }
-        }),
+
         new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.DefinePlugin({
-            'process.env':{
-                NODE_ENV:'development'
-            }
-        }),
+
         new HtmlWebpackPlugin({
             filename:'./app.html',
             template:path.resolve(__dirname,'./views/app.html'),
-            inject:true,
+            inject: true,
+            minify: {
+                collapseWhitespace: true,
+                collapseBooleanAttributes: true,
+                removeRedundantAttributes: true,
+                useShortDoctype: true,
+                removeEmptyAttributes: true
+            },
             chunks:['app','common']
-        })
-    ]
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+            compress:{
+                warnings:false
+            }
+        }),
+    ],
+    optimization:{
+        runtimeChunk: {
+            name: "manifest"
+        },
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: "vendor",
+                    chunks: "all"
+                }
+            }
+        }
+    }
 }
 module.exports = webpackBaseConfig;
