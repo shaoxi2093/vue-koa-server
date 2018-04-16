@@ -29,8 +29,8 @@ const webpackBaseConfig = {
                     loader: "vue-loader",
                     options: {
                         loaders:cssLoadersUtil.cssLoaders({
-                            minimize:false,   //不压缩，debug标记源位置，不单独生成文件
-                            sourceMap:true,
+                            minimize:true,
+                            sourceMap:false,
                             extract:false
                         })
                     }
