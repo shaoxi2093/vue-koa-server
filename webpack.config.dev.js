@@ -42,32 +42,32 @@ const webpackBaseConfig = {
             },
             {
                 test:/\.js|\.jsx$/,
-                loader: "babel-loader",
+                use: "babel-loader",
                 exclude:/node_modules/
             },
             {
                 test:/\.css$/,
-                loader: "style-loader!css-loader!postcss-loader"
+                use: [MiniCssExtractPlugin.loader,"css-loader","postcss-loader"]
             },
             {
                 test:/\.scss$/,
-                loader: "style-loader!css-loader!postcss-loader!sass-loader",
+                use: "style-loader!css-loader!postcss-loader!sass-loader",
                 exclude:/node_modules/
             },
             {
                 test:/\.svg/,
-                loader: "svg-sprite-loader",
+                use: "svg-sprite-loader",
                 options: {
                     symbolId:'icon-[name]'
                 }
             },
             {
                 test:/\.(png|jpe?g|gif|svg)(\?.*)?$/,
-                loader: "url-loader?limit=8192",
+                use: "url-loader?limit=8192",
             },
             {
                 test:/\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
-                loader: "file-loader"
+                use: "file-loader"
             }
         ]
     },
@@ -76,22 +76,13 @@ const webpackBaseConfig = {
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.HashedModuleIdsPlugin(),
-        /*new webpack.optimize.CommonsChunkPlugin({
-            name:'common',
-            minChunks(module){
-                return (
-                    module.resource && /\.js$/.test(module.resource) && module.resource.indexOf(
-                        path.resolve(__dirname,'./node_modules')
-                    ) === 0
-                )
-            }
-        }),*/
         new webpack.optimize.OccurrenceOrderPlugin(),
-        /*new webpack.DefinePlugin({
-            'process.env':{
-                NODE_ENV:'development'
-            }
-        }),*/
+        new MiniCssExtractPlugin({
+            // Options similar to the same options in webpackOptions.output
+            // both options are optional
+            filename: "[name].css",
+            chunkFilename: "[id].css"
+        }),
         new HtmlWebpackPlugin({
             filename:'./app.html',
             template:path.resolve(__dirname,'./views/app.html'),

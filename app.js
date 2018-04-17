@@ -4,6 +4,7 @@ const Koa = require('koa')
 const app = new Koa()
 const views = require('koa-views')
 const json = require('koa-json')
+const serve = require('koa-static')
 const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
@@ -100,7 +101,7 @@ if(IS_DEV_ENV){
 }
 
 //production
-
+app.use(serve(__dirname + './resource'));
 
 
 // error-handling

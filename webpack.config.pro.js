@@ -1,9 +1,13 @@
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 let cssLoadersUtil = require('./cssLoaders')
 let hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true'
+
 const webpackBaseConfig = {
     mode: 'development',
     entry: {
@@ -47,7 +51,7 @@ const webpackBaseConfig = {
             },
             {
                 test:/\.css$/,
-                loader: "style-loader!css-loader!postcss-loader"
+                use: [MiniCssExtractPlugin.loader,"css-loader","postcss-loader"]
             },
             {
                 test:/\.scss$/,
@@ -97,6 +101,10 @@ const webpackBaseConfig = {
                 warnings:false
             }
         }),
+        new MiniCssExtractPlugin({
+            filename: "[name].css",
+            chunkFilename: "[id].css"
+        })
     ],
     optimization:{
         runtimeChunk: {
@@ -110,7 +118,15 @@ const webpackBaseConfig = {
                     chunks: "all"
                 }
             }
-        }
+        },
+        minimizer: [
+            new UglifyJsPlugin({
+                cache: true,
+                parallel: true,
+                sourceMap: true // set to true if you want JS source maps
+            }),
+            new OptimizeCSSAssetsPlugin({})
+        ]
     }
 }
 module.exports = webpackBaseConfig;
