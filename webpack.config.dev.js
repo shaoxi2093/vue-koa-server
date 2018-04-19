@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 let cssLoadersUtil = require('./cssLoaders')
 let hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true'
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpackBaseConfig = {
     mode: 'development',
     entry: {
@@ -47,7 +48,7 @@ const webpackBaseConfig = {
             },
             {
                 test:/\.css$/,
-                use: [MiniCssExtractPlugin.loader,"css-loader","postcss-loader"]
+                use: ['style-loader',"css-loader","postcss-loader"]
             },
             {
                 test:/\.scss$/,
@@ -56,7 +57,7 @@ const webpackBaseConfig = {
             },
             {
                 test:/\.svg/,
-                use: "svg-sprite-loader",
+                loader: "svg-sprite-loader",
                 options: {
                     symbolId:'icon-[name]'
                 }
@@ -77,12 +78,12 @@ const webpackBaseConfig = {
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.HashedModuleIdsPlugin(),
         new webpack.optimize.OccurrenceOrderPlugin(),
-        new MiniCssExtractPlugin({
-            // Options similar to the same options in webpackOptions.output
-            // both options are optional
-            filename: "[name].css",
-            chunkFilename: "[id].css"
-        }),
+        // new MiniCssExtractPlugin({
+        //     // Options similar to the same options in webpackOptions.output
+        //     // both options are optional
+        //     filename: "[name].css",
+        //     chunkFilename: "[id].css"
+        // }),
         new HtmlWebpackPlugin({
             filename:'./app.html',
             template:path.resolve(__dirname,'./views/app.html'),
